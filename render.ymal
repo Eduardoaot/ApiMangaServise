@@ -1,0 +1,4 @@
+services:
+  - name: ApiMangaServise
+    env: docker
+    dockerfilePath: ./Dockerfile
