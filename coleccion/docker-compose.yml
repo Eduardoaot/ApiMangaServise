@@ -1,35 +1,29 @@
-version: "3.9"
+version: '3.8'
 services:
-
-  spring-api-image:
-    image: coleccion
-    container_name: coleccion
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
-    networks:
-      - spring-network
-    depends_on:
-      - mysql
-
   mysql:
-    image: mysql
-    container_name: localhost
+    image: mysql:8.0
+    container_name: mysql_db
     environment:
       MYSQL_ROOT_PASSWORD: admin
       MYSQL_DATABASE: manga_app_pruebas
-      MYSQL_USER: sperezp
-      MYSQL_PASSWORD: 150919
+      MYSQL_USER: root
+      MYSQL_PASSWORD: admin
     ports:
       - "3307:3306"
-    networks:
-      - spring-network
     volumes:
-      - mysql-volume:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
 
-networks:
-  spring-network:
+  app:
+    image: coleccion-app
+    container_name: coleccion_app
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/manga_app_pruebas?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: admin
+    depends_on:
+      - mysql
+
 volumes:
-  mysql-volume:
+  mysql_data:
