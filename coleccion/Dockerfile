@@ -1,14 +1,25 @@
-# Usa una imagen base de Java 21
-FROM openjdk:21-jdk-slim
+# Usar una imagen base de Java 21
+FROM eclipse-temurin:21.0.3_9-jdk
 
-# Establece un directorio de trabajo dentro del contenedor
-WORKDIR /app
-
-# Copia el archivo JAR generado por Maven al contenedor
-COPY target/coleccion-0.0.1-SNAPSHOT.jar app.jar
-
-# Expone el puerto en el que tu aplicación Spring Boot está escuchando
+# Informar el puerto donde se ejecuta el contenedor (informativo)
 EXPOSE 8080
 
-# Comando para ejecutar la aplicación
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Definir el directorio raíz del contenedor
+WORKDIR /app
+
+# Copiar los archivos necesarios para construir la aplicación
+COPY ./pom.xml /app
+COPY ./.mvn /app/.mvn
+COPY ./mvnw /app
+
+# Descargar las dependencias de Maven
+RUN ./mvnw dependency:go-offline
+
+# Copiar el código fuente de la aplicación
+COPY ./src /app/src
+
+# Construir la aplicación (sin ejecutar pruebas)
+RUN ./mvnw clean install -DskipTests
+
+# Levantar la aplicación cuando el contenedor inicie
+ENTRYPOINT ["java", "-jar", "/app/target/coleccion-0.0.1-SNAPSHOT.jar"]
